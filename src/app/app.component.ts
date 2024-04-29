@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {DrawerService} from "./services/drawer.service";
@@ -12,7 +12,7 @@ import {Configuration} from "./configuration/configuration";
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit, OnInit {
+export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     protected readonly Math = Math;
     protected readonly Configuration = Configuration;
 
@@ -48,20 +48,22 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     ngAfterViewInit(): void {
         this.drawer.init();
+        // this.drawer.draw(this.chargeDistance);
 
-        setInterval(() => {
-            this.drawer.draw(this.chargeDistance);
-        }, Configuration.MILLISECONDS2SECONDS / Configuration.fps);
+        // setInterval(() => {
+        //
+        // }, 1);
+    }
+
+    ngAfterViewChecked() {
+        this.drawer.draw(this.chargeDistance);
     }
 
     start() {
-        Configuration.move = true;
-        Configuration.startPosition = false;
+
     }
 
     restart() {
-        Configuration.move = false;
-        Configuration.startPosition = true;
 
         // this.hare = this.animalFactory.getNewHare(this.hareSpeed);
         // this.wolf = this.animalFactory.getNewWolf(this.hare, this.wolfStartY, this.wolfSpeed);
@@ -71,7 +73,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 
     onStartButtonClick($event: MouseEvent) {
-        this.start();
+        // this.start();
+        this.drawer.start();
     }
 
     onRestartButtonClick($event: MouseEvent) {

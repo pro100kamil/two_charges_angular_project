@@ -9,9 +9,7 @@
                            step="5"
                            min="1"
                            max="500"
-                           [(ngModel)]="chargeDistance"
-                           #hareSpeedInput="ngModel"
-                           [disabled]="Configuration.move || !Configuration.startPosition">
+                           [(ngModel)]="chargeDistance">
                     пикселей
                 </p>
 
@@ -22,13 +20,13 @@
                            step="5"
                            min="1"
                            max="200"
-                           [(ngModel)]="chargeModule"
-                           #wolfSpeedInput="ngModel"
-                           [disabled]="Configuration.move || !Configuration.startPosition">
+                           [(ngModel)]="chargeModule">
                     Кл
                 </p>
 
-                <p>
+                <input type="button" value="поменять местами"
+                       (click)="onStartButtonClick($event)">
+<!--                <p>-->
 <!--                    <label for="wolfSpeedInput">Координата Y волка:</label>-->
 <!--                    <input type="number" name="wolfStartYInput" id="wolfStartYInput"-->
 <!--                           required-->
@@ -41,16 +39,6 @@
 <!--                    кол-во пикселей над зайцем-->
 <!--                </p>-->
 
-                <input type="button" value="старт"
-                       [disabled]="Configuration.move || !Configuration.startPosition || hasChanges()"
-                       (click)="onStartButtonClick($event)">
-                <input type="button" value="заново"
-                       [disabled]="Configuration.startPosition"
-                       (click)="onRestartButtonClick($event)">
-<!--                <input type="button" value="применить"-->
-<!--                       [disabled]="Configuration.move || !Configuration.startPosition || !hasChanges()-->
-<!--                                || hareSpeedInput.invalid || wolfSpeedInput.invalid || wolfStartYInput.invalid"-->
-<!--                       (click)="onApplyButtonClick($event)">-->
             </form>
         </div>
         <div>
@@ -64,15 +52,17 @@
     </div>
 
     <div id="div_canvas">
-        <canvas id="canvas" width="{{Configuration.canvasWidth}}" height="{{Configuration.canvasHeight}}">
+        <canvas id="canvas"
+                width="{{Configuration.canvasWidth}}" height="{{Configuration.canvasHeight}}">
 
         </canvas>
     </div>
 
     <div>
 <!--        <p><b>{{ wolf.speed > hare.speed ? "Волк догонит" : "Волк не догонит" }}</b></p>-->
-        <p>Сила Кулона: {{ getForce() | number:".0-2" }} Н</p>
-        <p>Напряжённость: {{ getElectricFieldStrength() | number:".0-2" }} Н/КЛ</p>
+        <p>Сила Кулона одного заряда: {{ getForce() | number:".0-2" }} Н</p>
+        <p>Напряжённость одного заряда: {{ getElectricFieldStrength() | number:".0-2" }} Н/КЛ</p>
+        <p>Напряжённость в текущей точке: {{ drawer.electricFieldStrength | number:".0-2" }} Н/КЛ</p>
         <p>Потенциал: {{ getPotential() | number:".0-2" }} В</p>
 
 <!--        <div *ngIf="wolf.speed === hare.speed; else elseBlock">-->

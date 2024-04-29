@@ -4,13 +4,13 @@ import {Injectable} from "@angular/core";
     providedIn: 'root'
 })
 export class Configuration {
-    static move = false;            //есть ли движение в данный момент
-    static startPosition = true;    //находятся ли объекты в стартовой позиции
+    static useImages = false;  // используются ли картинки для зарядов или просто круги
 
-    static fps = 50;
-    static MILLISECONDS2SECONDS = 1000;
 
-    static canvasWidth= 1000;
+    static firstPositive = true;    // идёт ли положительный заряд первым по порядку
+
+
+    static canvasWidth = 1000;
     static canvasHeight = 500;
 
     static centerX = 50;
@@ -21,10 +21,5 @@ export class Configuration {
 
     static wolfTrajectoryColor = "red";
 
-    static hareDefaultSpeed = 50;       // пиксели в секунду
-    static wolfDefaultSpeed = 80;       // пиксели в секунду
-
     static wolfDefaultY = 350;          //кол-во пикселей над зайцем
-
-    static eps = 1;
 }

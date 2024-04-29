@@ -7,42 +7,71 @@ import {Dipole} from "../models/dipole";
 @Injectable({
     providedIn: 'root'
 })
-export class DrawerService{
+export class DrawerService {
+    loaded = 0;  // кол-во загруженных картинок, надо, чтобы их было две
+
     canvas: any;
     ctx: any;
-    hareImg: HTMLImageElement = <HTMLImageElement><unknown>null;
-    wolfImg: HTMLImageElement = <HTMLImageElement><unknown>null;
-    curTime = 0;
-    wolfTrajectory: Array<Array<number>> = [];
+    defaultArrowDelta = 4;
+
+    electricFieldStrength = 1;
+
+    positiveChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
+    negativeChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
+
+    dipole: any;
 
     init() {
         this.canvas = document.getElementById("canvas");
+
+        this.canvas.addEventListener("mousemove", (event: MouseEvent) => {
+            //TODO
+            let x = Configuration.centerX + event.x;
+            let y = Configuration.centerY - event.y;
+            console.log(x, y);
+
+            let k = 9 * 1e9;
+            let q = 1;
+            let x0 = 400;
+            let y0 = 200;
+            let x1 = 600;
+            let y1 = 200;
+            let r = ((x - x0) ** 2 + (y - y0) ** 2) ** 0.5;
+            let r2 = ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5;
+            this.electricFieldStrength = k * q / r - k * q / r2;
+        });
+
         this.ctx = this.canvas.getContext("2d");
 
-        this.hareImg = new Image();
-        this.hareImg.src = "assets/images/hare.png";
+        this.positiveChargeImage = new Image();
+        this.positiveChargeImage.src = "assets/images/cool.png";
 
-        this.wolfImg = new Image();
-        this.wolfImg.src = "assets/images/wolf.png";
+        this.negativeChargeImage = new Image();
+        this.negativeChargeImage.src = "assets/images/angry.png";
+
+        this.positiveChargeImage.onload = this.negativeChargeImage.onload = () => {
+            this.loaded++;
+        };
     }
 
-
-    drawHare() {
-        // this.ctx.drawImage(this.hareImg,
-        //     this.hare.curX - Configuration.radius, this.hare.curY - Configuration.radius,
-        //     Configuration.radius * 2, Configuration.radius * 2);
+    start() {
+        Configuration.firstPositive = !Configuration.firstPositive;
     }
 
     drawArrow(x: number, y: number, arrowDelta: number, direction: string): void {
         this.ctx.moveTo(x, y);
         if (direction === "right")
             this.ctx.lineTo(x - arrowDelta, y - arrowDelta);
+        else if (direction == "left")
+            this.ctx.lineTo(x + arrowDelta, y - arrowDelta);
         else
             this.ctx.lineTo(x - arrowDelta, y + arrowDelta);
 
         this.ctx.moveTo(x, y);
         if (direction === "right")
             this.ctx.lineTo(x - arrowDelta, y + arrowDelta);
+        else if (direction == "left")
+            this.ctx.lineTo(x + arrowDelta, y + arrowDelta);
         else
             this.ctx.lineTo(x + arrowDelta, y + arrowDelta);
     }
@@ -64,7 +93,7 @@ export class DrawerService{
     }
 
     drawAxes(radius: number, delta: number): void {
-        let arrowDelta: number = 4;
+        let arrowDelta: number = this.defaultArrowDelta;
         this.ctx.beginPath();
 
         this.ctx.fillStyle = "black";
@@ -97,123 +126,136 @@ export class DrawerService{
     }
 
     drawCharge(charge: Charge) {
-        this.ctx.beginPath();
-        this.ctx.arc(Configuration.centerX + charge.x, Configuration.centerY - charge.y,
-            charge.radius, 0, Math.PI * 2);
-        this.ctx.fillStyle = charge.q > 0 ? "blue" : "red";
-        this.ctx.fill();
-        this.ctx.closePath();
+        if (Configuration.useImages) {
+            this.ctx.drawImage(charge.q > 0 ? this.positiveChargeImage : this.negativeChargeImage,
+                Configuration.centerX + charge.x - charge.radius,
+                Configuration.centerY - charge.y - charge.radius,
+                charge.radius * 2, charge.radius * 2);
+        } else {
+            this.ctx.beginPath();
+            this.ctx.arc(Configuration.centerX + charge.x, Configuration.centerY - charge.y,
+                charge.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = charge.q > 0 ? "blue" : "red";
+            this.ctx.fill();
+            this.ctx.closePath();
+            this.ctx.fillStyle = "black";
+        }
     }
 
     drawLine(x1: number, y1: number, x2: number, y2: number) {
         // points in math coordinate system
-        this.ctx.beginPath();
         this.ctx.moveTo(Configuration.centerX + x1, Configuration.centerY - y1);
         this.ctx.lineTo(Configuration.centerX + x2, Configuration.centerY - y2);
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
-        this.ctx.closePath();
     }
 
     drawCurve(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) {
         // points in math coordinate system
-        this.ctx.beginPath();
+
         this.ctx.moveTo(Configuration.centerX + x1, Configuration.centerY - y1);
 
         let dy = y2 - y1;
 
         this.ctx.quadraticCurveTo(Configuration.centerX + x2, Configuration.centerY - (y2 + dy),
             Configuration.centerX + x3, Configuration.centerY - y3);
+    }
+
+    drawLinesOfForce(dipole: Dipole) {
+        let dy = 50;
+        let y0 = dipole.charge1.y;
+        let x1 = dipole.charge1.x;
+        let x2 = dipole.charge2.x;
+        let r = dipole.charge1.radius;
+
+        let k = (x2 - x1);
+
+
+        this.ctx.beginPath();
+
+        this.drawLine(x1, y0, x2, y0);
+        this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y0, this.defaultArrowDelta,
+            Configuration.firstPositive ? "right" : "left");
+
+        //up
+        for (let y = y0 + r; y <= 400; y += dy) {
+            //middle
+            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
+            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
+                Configuration.firstPositive ? "right" : "left");
+
+            //left
+            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
+            // this.drawCurve(x1, y0, (x1 * 2 - k) / 2, (y + y) / 2, x1 - k, y);
+            // this.drawArrow(Configuration.centerX + (x1 * 2 - k) / 2, Configuration.centerY - (y0 + y) / 2, this.defaultArrowDelta, "right");
+            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+
+            //right
+            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
+            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+        }
+        //down
+
+        for (let y = y0 - r; y >= 0; y -= dy) {
+            //middle
+            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
+            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
+                Configuration.firstPositive ? "right" : "left");
+
+            //left
+            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
+            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+
+            //right
+            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
+            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+        }
 
         this.ctx.strokeStyle = "black";
         this.ctx.stroke();
         this.ctx.closePath();
     }
 
-    drawLinesOfForce(dipole: Dipole) {
-        let dy = 25;
-        let y0 = dipole.charge1.y;
-        let x1 = dipole.charge1.x;
-        let x2 = dipole.charge2.x;
-        let r = dipole.charge1.radius;
+    drawEquipotentialSurfaces(dipole: Dipole) {
+        //TODO
+        let dx = 20;
 
-        this.drawLine(x1 + r, y0, x2 - r, y0);
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(Configuration.centerX + x1, Configuration.centerY - y0 + 25);
-        //
-        // this.ctx.lineTo(Configuration.centerX + x2, Configuration.centerY - y0 + 25);
-        //
-        // this.ctx.strokeStyle = "black";
-        // this.ctx.stroke();
-        // this.ctx.closePath();
-
-        //up
-        for (let y = y0 + r; y <= 400; y+= dy) {
-            //middle
-            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
-            let arrowDelta: number = 4;
-
+        for (let r = 50; r < 200; r += 50) {
             this.ctx.beginPath();
-            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, arrowDelta, "right");
-            this.ctx.fill();
+
+            this.ctx.arc(Configuration.centerX + dipole.charge1.x - dx,
+                Configuration.centerY - dipole.charge1.y,
+                r, 0, Math.PI * 2);
+            dx += 20;
+
+            this.ctx.strokeStyle = "red";
             this.ctx.stroke();
             this.ctx.closePath();
-            // this.drawTextWithDeltaY(y + "", Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y);
-            // this.drawTextWithDeltaY(2 * y + "", Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y * 2);
-            // break;
-            // this.ctx.beginPath();
-            // this.ctx.moveTo(Configuration.centerX + x1, Configuration.centerY - y0);
-            //
-            // this.ctx.quadraticCurveTo(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y -100,
-            //     Configuration.centerX + x2, Configuration.centerY - y0);
-            //
-            // this.ctx.strokeStyle = "black";
-            // this.ctx.stroke();
-            // this.ctx.closePath();
-
-            //left
-
-            // this.ctx.beginPath();
-            // this.ctx.moveTo(Configuration.centerX + x1 - 200, Configuration.centerY - y0);
-            //
-            // this.ctx.quadraticCurveTo(Configuration.centerX + x1 - 100, Configuration.centerY - y -100,
-            //     Configuration.centerX + x1, Configuration.centerY - y0);
-            //
-            // this.ctx.strokeStyle = "black";
-            // this.ctx.stroke();
-            // this.ctx.closePath();
+            this.ctx.strokeStyle = "black";
         }
-        //down
 
-        for (let y = y0 - r; y >= 0; y-= dy) {
-            //middle
-            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
+        dx = 20;
+
+        for (let r = 50; r < 200; r += 50) {
             this.ctx.beginPath();
-            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, 4, "right");
-            this.ctx.fill();
+
+            this.ctx.arc(Configuration.centerX + dipole.charge2.x + dx,
+                Configuration.centerY - dipole.charge2.y,
+                r, 0, Math.PI * 2);
+            dx += 20;
+
+            this.ctx.strokeStyle = "red";
             this.ctx.stroke();
             this.ctx.closePath();
+            this.ctx.strokeStyle = "black";
         }
-        return;
-        // y0 -= 50;
-        // for (let y = y0; y >=  0; y -= dy) {
-        //     this.ctx.beginPath();
-        //     this.ctx.moveTo(Configuration.centerX + x1, Configuration.centerY - y0);
-        //
-        //     // this.ctx.lineTo(Configuration.centerX + x2, Configuration.centerY - y);
-        //     // this.ctx.arcTo(Configuration.centerX + x1, Configuration.centerY - y,
-        //     //     Configuration.centerX + x2, Configuration.centerY - y, 90);
-        //     this.ctx.quadraticCurveTo(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y + 100,
-        //         Configuration.centerX + x2, Configuration.centerY - y0);
-        //
-        //     this.ctx.strokeStyle = "black";
-        //     this.ctx.stroke();
-        //     this.ctx.closePath();
-        // }
     }
 
     drawDipole(dipole: Dipole) {
         this.drawLinesOfForce(dipole);
+        // this.drawEquipotentialSurfaces(dipole);
 
         this.drawCharge(dipole.charge1);
         this.drawCharge(dipole.charge2);
@@ -224,11 +266,14 @@ export class DrawerService{
 
         this.drawAxes(400, 25);
 
-        let dipole = new Dipole(1, r, 400, 200);
-        // this.drawCharge(new Charge(1, 200, 200));
-        this.drawDipole(dipole);
-        // this.drawHare();
-        // this.drawTrajectory();
-        // this.drawWolf();
+        this.dipole =  new Dipole(1, r, 400, 200);
+
+        if (!Configuration.firstPositive) {
+            this.dipole.swapCharges();
+        }
+
+        if (!Configuration.useImages || this.loaded == 2) {
+            this.drawDipole(this.dipole);
+        }
     }
 }
