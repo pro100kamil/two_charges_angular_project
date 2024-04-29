@@ -1,1 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+p, input, label {
+  font-size: 20px;
+}
+
+body {
+  /*background-color: #ffb1ea;*/
+  background: linear-gradient(#ffb1ea, #f185d3);
+}

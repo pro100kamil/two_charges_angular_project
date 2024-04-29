@@ -1,0 +1,48 @@
+#top-part {
+  background-color: pink;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+#top-part:hover {
+  background-color: #fdb6c2;
+}
+
+canvas {
+  border: 1px solid black;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+canvas:hover {
+  border: 1px dashed blue;
+  border-radius: 20px;
+}
+
+
+input[type="number"], input[type="button"] {
+  width: 120px;
+  margin: 5px;
+  border-radius: 20px;
+}
+
+input[type="number"]:hover {
+  border: 2px dashed deeppink;
+  color: deeppink;
+}
+
+input[type="button"]:hover {
+  border: 2px dashed green;
+  background-color: red;
+  color: white;
+}
+
+input[type="button"]:active {
+  border: 2px dashed red;
+  background-color: white;
+  color: green;
+}
+
+input.ng-touched.ng-invalid {
+  border: solid red 2px;
+}
