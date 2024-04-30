@@ -20,6 +20,12 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     chargeDistance: number = 200;
     chargeModule: number = 1;
 
+    drawLines = true;
+    drawSurfaces = true;
+
+    electricFieldStrength = 1;
+    potential = 1;
+
 
     constructor(public drawer: DrawerService) {
     }
@@ -27,72 +33,62 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     getForce() {
         // закон Кулона
         let k = 9 * 1e9;
-        return k * this.chargeModule ** 2 / this.chargeDistance ** 2;
+        let q = this.chargeModule / 1e6;  // потому что изначально задаётся в микрокулонах
+        let r = this.chargeDistance;
+        return k * q ** 2 / r ** 2;
     }
 
     getElectricFieldStrength() {
         // E = F / q
-        return this.getForce() / this.chargeModule;
+        let q = this.chargeModule / 1e6;  // потому что изначально задаётся в микрокулонах
+        return this.getForce() / q;
     }
 
     getPotential() {
         let k = 9 * 1e9;
-        let w = k * this.chargeModule ** 2 / this.chargeDistance;
-        return w / this.chargeModule;
+        let q = this.chargeModule / 1e6;  // потому что изначально задаётся в микрокулонах
+        let r = this.chargeDistance;
+        let w = k * q ** 2 / r;
+        return w / q;
     }
 
     ngOnInit() {
 
-
     }
 
     ngAfterViewInit(): void {
-        this.drawer.init();
-        // this.drawer.draw(this.chargeDistance);
+        let canvas = document.getElementById("canvas");
 
-        // setInterval(() => {
-        //
-        // }, 1);
+        if (canvas == null) return;
+
+        canvas.addEventListener("mousemove", (event: MouseEvent) => {
+            //TODO
+            let x = Configuration.centerX + event.x;
+            let y = Configuration.centerY - event.y;
+            console.log(x, y);
+
+            let k = 9 * 1e9;
+            let q = this.chargeModule / 1e6;  // потому что изначально задаётся в микрокулонах
+
+            let x0 = 400;
+            let y0 = 200;
+            let x1 = 600;
+            let y1 = 200;
+            let r = ((x - x0) ** 2 + (y - y0) ** 2) ** 0.5;
+            let r2 = ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5;
+            this.electricFieldStrength = k * q / r ** 2 - k * q / r2 ** 2;
+
+            this.potential = k * q / r - k * q / r2;
+        });
+
+        this.drawer.init();
     }
 
     ngAfterViewChecked() {
-        this.drawer.draw(this.chargeDistance);
+        this.drawer.draw(this.chargeDistance, this.drawLines, this.drawSurfaces);
     }
 
-    start() {
-
-    }
-
-    restart() {
-
-        // this.hare = this.animalFactory.getNewHare(this.hareSpeed);
-        // this.wolf = this.animalFactory.getNewWolf(this.hare, this.wolfStartY, this.wolfSpeed);
-        //
-        // this.drawer.setAnimals(this.hare, this.wolf);
-    }
-
-
-    onStartButtonClick($event: MouseEvent) {
-        // this.start();
-        this.drawer.start();
-    }
-
-    onRestartButtonClick($event: MouseEvent) {
-        this.restart();
-    }
-
-    onApplyButtonClick($event: MouseEvent) {
-        // this.hare.speed = this.hareSpeed;
-        //
-        // this.wolf.curY = Configuration.centerY - this.wolfStartY;
-        // this.wolf.startY = this.wolfStartY;
-        // this.wolf.speed = this.wolfSpeed;
-    }
-
-    hasChanges() {
-        return false;
-        // return this.hareSpeed !== this.hare.speed ||
-        //     this.wolfSpeed !== this.wolf.speed ||
-        //     this.wolfStartY !== this.wolf.startY;
+    onSwapButtonClick($event: MouseEvent) {
+        this.drawer.swapCharges();
     }
 }

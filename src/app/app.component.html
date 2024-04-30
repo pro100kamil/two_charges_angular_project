@@ -21,33 +21,28 @@
                            min="1"
                            max="200"
                            [(ngModel)]="chargeModule">
-                    Кл
+                    мкКл
                 </p>
 
                 <input type="button" value="поменять местами"
-                       (click)="onStartButtonClick($event)">
-<!--                <p>-->
-<!--                    <label for="wolfSpeedInput">Координата Y волка:</label>-->
-<!--                    <input type="number" name="wolfStartYInput" id="wolfStartYInput"-->
-<!--                           required-->
-<!--                           step="5"-->
-<!--                           min="25"-->
-<!--                           max="400"-->
-<!--                           [(ngModel)]="wolfStartY"-->
-<!--                           #wolfStartYInput="ngModel"-->
-<!--                           [disabled]="Configuration.move || !Configuration.startPosition">-->
-<!--                    кол-во пикселей над зайцем-->
-<!--                </p>-->
+                       (click)="onSwapButtonClick($event)">
 
+                <br>
+                <label>
+                    <input type="checkbox" name="languages" value="HTML"
+                           [(ngModel)]="drawLines">
+                    Силовые линии
+                </label>
+                <br>
+                <label>
+                    <input type="checkbox" name="languages" value="CSS"
+                           [(ngModel)]="drawSurfaces">
+                    Эквипотенциальные поверхности
+                </label>
+                <br>
             </form>
         </div>
         <div>
-<!--            <p>Время погони: <b>{{ drawer.curTime | number:".0-2" }}</b>с,-->
-<!--                ожидаемое время: <b>{{ getExpectedTime() | number:".0-2" }}</b>с,-->
-<!--                координата зайца: (<b>{{ (hare.curX - Configuration.centerX)  | number:".0-0" }}</b>;-->
-<!--                <b>{{ (Configuration.centerY - hare.curY) | number:".0-0" }}</b>),-->
-<!--                координата волка: (<b>{{ (wolf.curX - Configuration.centerX) | number:".0-0" }}</b>;-->
-<!--                <b>{{ (Configuration.centerY - wolf.curY)  | number:".0-0" }}</b>).</p>-->
         </div>
     </div>
 
@@ -59,20 +54,10 @@
     </div>
 
     <div>
-<!--        <p><b>{{ wolf.speed > hare.speed ? "Волк догонит" : "Волк не догонит" }}</b></p>-->
-        <p>Сила Кулона одного заряда: {{ getForce() | number:".0-2" }} Н</p>
+        <p>Сила Кулона одного заряда: {{ getForce() }} Н</p>
         <p>Напряжённость одного заряда: {{ getElectricFieldStrength() | number:".0-2" }} Н/КЛ</p>
-        <p>Напряжённость в текущей точке: {{ drawer.electricFieldStrength | number:".0-2" }} Н/КЛ</p>
+        <p>Напряжённость в текущей точке: {{ electricFieldStrength | number:".0-2" }} Н/КЛ</p>
         <p>Потенциал: {{ getPotential() | number:".0-2" }} В</p>
-
-<!--        <div *ngIf="wolf.speed === hare.speed; else elseBlock">-->
-<!--            <p>-->
-<!--                Предельное расстояние:-->
-<!--                {{ wolf.startY / 2 | number:".0-2" }}-->
-<!--            </p>-->
-<!--        </div>-->
-<!--        <ng-template #elseBlock><p>-->
-<!--            Предельное расстояние не существует-->
-<!--        </p></ng-template>-->
+        <p>Потенциал в текущей точке: {{ potential | number:".0-2" }} В</p>
     </div>
 </div>

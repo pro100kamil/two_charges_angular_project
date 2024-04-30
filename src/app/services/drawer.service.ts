@@ -14,8 +14,6 @@ export class DrawerService {
     ctx: any;
     defaultArrowDelta = 4;
 
-    electricFieldStrength = 1;
-
     positiveChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
     negativeChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
 
@@ -23,23 +21,6 @@ export class DrawerService {
 
     init() {
         this.canvas = document.getElementById("canvas");
-
-        this.canvas.addEventListener("mousemove", (event: MouseEvent) => {
-            //TODO
-            let x = Configuration.centerX + event.x;
-            let y = Configuration.centerY - event.y;
-            console.log(x, y);
-
-            let k = 9 * 1e9;
-            let q = 1;
-            let x0 = 400;
-            let y0 = 200;
-            let x1 = 600;
-            let y1 = 200;
-            let r = ((x - x0) ** 2 + (y - y0) ** 2) ** 0.5;
-            let r2 = ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5;
-            this.electricFieldStrength = k * q / r - k * q / r2;
-        });
 
         this.ctx = this.canvas.getContext("2d");
 
@@ -54,7 +35,7 @@ export class DrawerService {
         };
     }
 
-    start() {
+    swapCharges() {
         Configuration.firstPositive = !Configuration.firstPositive;
     }
 
@@ -254,14 +235,11 @@ export class DrawerService {
     }
 
     drawDipole(dipole: Dipole) {
-        this.drawLinesOfForce(dipole);
-        // this.drawEquipotentialSurfaces(dipole);
-
         this.drawCharge(dipole.charge1);
         this.drawCharge(dipole.charge2);
     }
 
-    draw(r: number) {
+    draw(r: number, drawLines: boolean, drawSurfaces: boolean) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawAxes(400, 25);
@@ -273,6 +251,9 @@ export class DrawerService {
         }
 
         if (!Configuration.useImages || this.loaded == 2) {
+            if (drawLines) this.drawLinesOfForce(this.dipole);
+            if (drawSurfaces) this.drawEquipotentialSurfaces(this.dipole);
+
             this.drawDipole(this.dipole);
         }
     }
