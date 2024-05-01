@@ -37,10 +37,6 @@ export class DrawerService {
         };
     }
 
-    swapCharges() {
-        Configuration.firstPositive = !Configuration.firstPositive;
-    }
-
     drawArrow(x: number, y: number, arrowDelta: number, direction: string): void {
         this.ctx.moveTo(x, y);
         if (direction === "right")
@@ -143,7 +139,7 @@ export class DrawerService {
             Configuration.centerX + x3, Configuration.centerY - y3);
     }
 
-    drawLinesOfForce(dipole: Dipole) {
+    oldestDrawLinesOfForce(dipole: Dipole) {
         let dy = 50;
         let y0 = dipole.charge1.y;
         let x1 = dipole.charge1.x;
@@ -203,7 +199,7 @@ export class DrawerService {
     }
 
 
-    newDrawLinesOfForce(dipole: Dipole) {
+    oldDrawLinesOfForce(dipole: Dipole) {
         let q1 = dipole.charge1.q;
         let q2 = dipole.charge2.q;
         let y0 = dipole.charge1.y;
@@ -359,9 +355,10 @@ export class DrawerService {
 
     }
 
-    new2DrawLinesOfForce(dipole: Dipole) {
+    drawLinesOfForce(dipole: Dipole) {
         let lines = this.calculator.getLinesOfForce(dipole);
         for (let line of lines) {
+
             let n = line.length;
             for (let i = 0; i + 1 < n; i++) {
                 let x1 = line[i][0];
@@ -370,13 +367,6 @@ export class DrawerService {
                 let y2 = line[i + 1][1];
                 this.ctx.beginPath();
                 this.drawLine(x1, y1, x2, y2);
-                // if (x2 >= 400) {
-                //     this.drawLine(x1, y1, 400, y2);
-                //     // this.drawArrow(Configuration.centerX + 400, Configuration.centerY - y, this.defaultArrowDelta,
-                //     //     Configuration.firstPositive ? "right" : "left");
-                // } else {
-                //     this.drawLine(x, y, x + ex, y + ey);
-                // }
                 this.ctx.stroke();
                 this.ctx.fill();
                 this.ctx.closePath();
@@ -447,7 +437,7 @@ export class DrawerService {
         }
 
         if (!Configuration.useImages || this.loaded == 2) {
-            if (drawLines) this.new2DrawLinesOfForce(dipole);
+            if (drawLines) this.drawLinesOfForce(dipole);
             if (drawSurfaces) this.newDrawEquipotentialSurfaces(dipole);
 
             this.drawDipole(dipole);

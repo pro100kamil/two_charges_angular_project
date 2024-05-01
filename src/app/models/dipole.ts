@@ -1,6 +1,8 @@
 import {Charge} from "./charge";
+import {Configuration} from "../configuration/configuration";
 
 export class Dipole {
+    // it was only pure dipole (+q, -q), but now it uses for (+q, +q) or (-q, -q)
     charge1: Charge;
     charge2: Charge;
 
@@ -10,8 +12,8 @@ export class Dipole {
     constructor(q: number, r: number, x: number, y: number) {
         this.x = x;
         this.y = y;
-        this.charge1 = new Charge(q, x - r / 2 - 25, y);
-        this.charge2 = new Charge(-q, x + r / 2 + 25, this.y);
+        this.charge1 = new Charge(q, x - r / 2 - Configuration.radius, y);
+        this.charge2 = new Charge(-q, x + r / 2 + Configuration.radius, this.y);
     }
 
     swapCharges() {

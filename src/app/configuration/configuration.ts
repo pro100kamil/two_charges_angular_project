@@ -17,5 +17,5 @@ export class Configuration {
     static centerY = Configuration.canvasHeight - 50;
     // (centerX;centerY) in computer coordinate system = (0;0) in math coordinate system
 
-    static radius = 25;
+    static radius = 50;  // charge radius
 }

@@ -1,4 +1,4 @@
-import {AfterViewChecked, AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {DrawerService} from "./services/drawer.service";
@@ -14,7 +14,7 @@ import {Dipole} from "./models/dipole";
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
+export class AppComponent implements AfterViewInit, AfterViewChecked {
     protected readonly Math = Math;
     protected readonly Configuration = Configuration;
 
@@ -31,6 +31,7 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     mode = "+-";
 
     dipole: any;
+    usePictures = Configuration.useImages;
 
 
     constructor(public drawer: DrawerService,
@@ -57,14 +58,9 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
         return this.calculator.getPotential(q, r);
     }
 
-    ngOnInit() {
-
-    }
-
     ngAfterViewInit(): void {
         let audio = document.getElementsByTagName('audio')[0];
         audio.volume = 0;
-
 
         let canvas = document.getElementById("canvas");
 
@@ -94,34 +90,21 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
 
             if (!this.playAudio) return;
 
+            // volume and durations depends on electricFieldStrength
             if (Math.abs(this.electricFieldStrength) > 20) {
-                audio.play();
+                // audio.pause();
                 audio.volume = 1;
-                setTimeout(()=> {
-                    audio.pause();
-                    audio.currentTime = 0.0;
-                }, 2000)
             } else if (Math.abs(this.electricFieldStrength) > 10) {
-                audio.play();
                 audio.volume = 0.75;
-                setTimeout(()=> {
-                    audio.pause();
-                    audio.currentTime = 0.0;
-                }, 1000)
             }else if (Math.abs(this.electricFieldStrength) > 5) {
-                audio.play();
                 audio.volume = 0.5;
-                setTimeout(()=> {
-                    audio.pause();
-                    audio.currentTime = 0.0;
-                }, 1000)
             }else if (Math.abs(this.electricFieldStrength) > 1) {
-                audio.play();
                 audio.volume = 0.25;
-                setTimeout(()=> {
-                    audio.pause();
-                    audio.currentTime = 0.0;
-                }, 1000)
+            }else if (Math.abs(this.electricFieldStrength) > 0.2) {
+                audio.volume = 0.15;
+            }
+            else {
+                audio.volume = 0;
             }
         });
 
@@ -129,18 +112,23 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     }
 
     ngAfterViewChecked() {
+        Configuration.useImages = this.usePictures;
+
+        //because pics contains empty space
+        if (Configuration.useImages) Configuration.radius = 50;
+        else Configuration.radius = 25;
+
         this.dipole = new Dipole(this.chargeModule, this.chargeDistance, 400, 200);
         if (this.mode == '--') {
             this.dipole.charge1.q *= -1;
         } else if (this.mode == '++') {
             this.dipole.charge2.q *= -1;
         }
-        // this.dipole = new Dipole(this.chargeModule, this.chargeDistance, 100, 200);
 
         this.drawer.draw(this.dipole, this.drawLines, this.drawSurfaces);
     }
 
     onSwapButtonClick($event: MouseEvent) {
-        this.drawer.swapCharges();
+        Configuration.firstPositive = !Configuration.firstPositive;
     }
 }

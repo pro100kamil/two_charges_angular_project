@@ -56,14 +56,14 @@ export class CalculatorService {
         let x2 = dipole.charge2.x;
 
         let q = Math.abs(q1) / 200;
-        let dy = 100 - q * 80;
+        let dy = Math.round(100 - q * 80);
         // let dy = 50;
         let count = 800;
         let ys = [];
         for (let y = 50; y <= 350; y += dy) ys.push(y);
         // ys = [50, 100, 150, 200, 250, 300, 350];
         let lines = [];
-        for (let y of ys)  {
+        for (let y of ys) {
             let y_ = y;
             for (let side of ["right", "left"]) {
                 let x = side == "left" ? 50 : 750;
@@ -104,30 +104,44 @@ export class CalculatorService {
                     ex = ex / e * step;
                     ey = ey / e * step;
 
+
+
                     if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
+                        console.log(ex, ey);
                         ex = 1;
                         e1 = 1;
                     }
 
-                    if (side == "left" && ex < 0) {
+                    if (side == "left" && x < 350 && ex < 0) {
                         ex *= -1;
                         ey *= -1;
-                    }
-                    else if (side == "right" && ex > 0) {
+                    } else if (side == "right" && x > 450 && ex > 0) {
                         ex *= -1;
                         ey *= -1;
                     }
 
                     x = x + ex;
                     y = y + ey;
+                    let y_ = y;
+                    if (y > 400) y = 400;
+                    else if (y < 0) y = 0;
+
                     if (side == "left" && x >= 400) line.push([400, y]);
                     else if (side == "right" && x <= 400) line.push([400, y]);
                     else line.push([x, y]);
+                    if (y_ > 400 || y_ < 0) break;
                 }
-                if (q1 == q2 && 25 <= y && y <= 375) continue;
+                // if (q1 == q2 && 25 <= y && y <= 375) continue;
+
                 // if (q1 == q2 && 25 <= y && y <= 375) {
-                //     if (line[0][1]) line.push([400, 380]);
-                //     else line.push([400, 20]);
+                //     let n = line.length;
+                //     console.log(line[n - 1]);
+                //     let y1 = line[n - 702][1];
+                //     let y2 = line[n - 701][1];
+                //     let y3 = line[n - 700][1];
+                //     console.log(y1, y2, y3);
+                //     if (y2 > y1 && y3 > y2) line.push([x, 380]);
+                //     else if (y2 < y1 && y3 < y2) line.push([x, 20]);
                 // }
                 lines.push(line);
             }
