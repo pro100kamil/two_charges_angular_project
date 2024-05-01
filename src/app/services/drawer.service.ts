@@ -253,8 +253,9 @@ export class DrawerService {
         // this.ctx.beginPath();
         let dx = 20;
         let q = Math.abs(q1) / 200;
-        // let dy = 100 - q * 80;
-        let dy = 50;
+        let dy = 100 - q * 80;
+        console.log(Math.abs(q1), dy);
+        // let dy = 50;
         let count = 700;
         let ys = [];
         for (let y = 50; y <= 350; y += dy) ys.push(y);
@@ -393,11 +394,11 @@ export class DrawerService {
     }
 
     newDrawEquipotentialSurfaces(dipole: Dipole) {
-        let q1 = dipole.charge1.q / 1e6;  // потому что изначально задаётся в микрокулонах
+        let q1 = dipole.charge1.q / Math.abs(dipole.charge1.q) / 1e6;  // потому что изначально задаётся в микрокулонах
         let x1 = dipole.charge1.x;
         let y1 = dipole.charge1.y;
 
-        let q2 = dipole.charge2.q / 1e6;  // потому что изначально задаётся в микрокулонах
+        let q2 = dipole.charge2.q / Math.abs(dipole.charge2.q) / 1e6;  // потому что изначально задаётся в микрокулонах
         let x2 = dipole.charge2.x;
         let y2 = dipole.charge2.y;
 

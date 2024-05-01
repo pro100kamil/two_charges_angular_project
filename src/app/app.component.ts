@@ -96,7 +96,7 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     }
 
     ngAfterViewChecked() {
-        this.dipole = new Dipole(1, this.chargeDistance, 400, 200);
+        this.dipole = new Dipole(this.chargeModule, this.chargeDistance, 400, 200);
 
         this.drawer.draw(this.dipole, this.drawLines, this.drawSurfaces);
     }
