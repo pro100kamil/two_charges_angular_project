@@ -17,7 +17,7 @@ canvas {
 
 canvas:hover {
     border: 1px dashed blue;
-    border-radius: 20px;
+    /*border-radius: 20px;*/
 }
 
 
@@ -31,7 +31,7 @@ input[type="button"] {
     width: 250px;
 }
 
-  input[type="number"]:hover {
+input[type="number"]:hover {
     border: 2px dashed deeppink;
     color: deeppink;
 }

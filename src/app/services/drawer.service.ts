@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Configuration} from "../configuration/configuration";
 import {Charge} from "../models/charge";
 import {Dipole} from "../models/dipole";
+import {CalculatorService} from "./calculator.service";
 
 
 @Injectable({
@@ -17,7 +18,8 @@ export class DrawerService {
     positiveChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
     negativeChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
 
-    dipole: any;
+    constructor(public calculator: CalculatorService) {
+    }
 
     init() {
         this.canvas = document.getElementById("canvas");
@@ -70,6 +72,7 @@ export class DrawerService {
     }
 
     drawPoint(x: number, y: number, delta: number = 2): void {
+        // point in computer coordinate system!
         this.ctx.rect(x - delta / 2, y - delta / 2, delta, delta);
     }
 
@@ -234,27 +237,80 @@ export class DrawerService {
         }
     }
 
+    newDrawEquipotentialSurfaces(dipole: Dipole) {
+        let q1 = dipole.charge1.q / 1e6;  // потому что изначально задаётся в микрокулонах
+        let x1 = dipole.charge1.x;
+        let y1 = dipole.charge1.y;
+
+        let q2 = dipole.charge2.q / 1e6;  // потому что изначально задаётся в микрокулонах
+        let x2 = dipole.charge2.x;
+        let y2 = dipole.charge2.y;
+
+        let potentialMap = new Map();
+        //potentialMap[potential] = [(x1, y1), (x2, y2), ...]
+        let potentials = [30, 40, 50, 70, 90];
+        // let potentials = [];
+        // potentials.push(Math.round(this.calculator.getPotentialAtPoint(q1, x1, y1,
+        //     q2, x2, y2,
+        //     x1 + dipole.charge1.radius, y1 + dipole.charge1.radius)));
+
+        for (let potential of potentials) {
+            potentialMap.set(potential, []);
+            potentialMap.set(-potential, []);
+        }
+        // potentialMap.set(10, []);
+        for (let y = 0; y <= 400; y++) {
+            for (let x = 0; x <= 950; x++) {
+                let potential = Math.round(this.calculator.getPotentialAtPoint(q1, x1, y1,
+                    q2, x2, y2,
+                    x, y));
+                // console.log(x, y, potential);
+                if (potentialMap.has(potential)) {
+                    potentialMap.get(potential).push([x, y]);
+                }
+                else if (potentialMap.has(potential + 1)) {
+                    potentialMap.get(potential + 1).push([x, y]);
+                }
+                else if (potentialMap.has(potential - 1)) {
+                    potentialMap.get(potential - 1).push([x, y]);
+                }
+            }
+        }
+
+        for (let potential of potentialMap.keys()) {
+            this.ctx.beginPath();
+            for (let xy of potentialMap.get(potential)) {
+                let x = xy[0]; let y = xy[1];
+                let cx = Configuration.centerX + x; let cy = Configuration.centerY - y;
+                this.drawPoint(cx, cy, 1);
+            }
+            this.ctx.stroke();
+            this.ctx.fill();
+            this.ctx.closePath();
+        }
+    }
+
     drawDipole(dipole: Dipole) {
         this.drawCharge(dipole.charge1);
         this.drawCharge(dipole.charge2);
     }
 
-    draw(r: number, drawLines: boolean, drawSurfaces: boolean) {
+    draw(dipole: Dipole, drawLines: boolean, drawSurfaces: boolean) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawAxes(400, 25);
 
-        this.dipole =  new Dipole(1, r, 400, 200);
+        // this.dipole =  new Dipole(1, r, 400, 200);
 
         if (!Configuration.firstPositive) {
-            this.dipole.swapCharges();
+            dipole.swapCharges();
         }
 
         if (!Configuration.useImages || this.loaded == 2) {
-            if (drawLines) this.drawLinesOfForce(this.dipole);
-            if (drawSurfaces) this.drawEquipotentialSurfaces(this.dipole);
+            if (drawLines) this.drawLinesOfForce(dipole);
+            if (drawSurfaces) this.newDrawEquipotentialSurfaces(dipole);
 
-            this.drawDipole(this.dipole);
+            this.drawDipole(dipole);
         }
     }
 }

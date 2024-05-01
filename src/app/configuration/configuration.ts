@@ -15,11 +15,7 @@ export class Configuration {
 
     static centerX = 50;
     static centerY = Configuration.canvasHeight - 50;
-    // (centerX;centerY) - (0;0)
+    // (centerX;centerY) in computer coordinate system = (0;0) in math coordinate system
 
     static radius = 25;
-
-    static wolfTrajectoryColor = "red";
-
-    static wolfDefaultY = 350;          //кол-во пикселей над зайцем
 }

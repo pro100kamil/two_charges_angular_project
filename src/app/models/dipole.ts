@@ -4,8 +4,8 @@ export class Dipole {
     charge1: Charge;
     charge2: Charge;
 
-    x: number;  // center of first charge
-    y: number;  // center of first charge
+    x: number;  // dipole center
+    y: number;  // dipole center
 
     constructor(q: number, r: number, x: number, y: number) {
         this.x = x;
