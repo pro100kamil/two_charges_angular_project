@@ -22,7 +22,7 @@ export class AppComponent implements AfterViewInit, OnInit, AfterViewChecked {
     chargeDistance: number = 200;
     chargeModule: number = 1;
 
-    drawLines = false;
+    drawLines = true;
     drawSurfaces = true;
 
     electricFieldStrength = 1;

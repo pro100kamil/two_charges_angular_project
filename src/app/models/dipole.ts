@@ -10,8 +10,8 @@ export class Dipole {
     constructor(q: number, r: number, x: number, y: number) {
         this.x = x;
         this.y = y;
-        this.charge1 = new Charge(q, this.x, this.y);
-        this.charge2 = new Charge(-q, this.x + this.charge1.radius + r, this.y);
+        this.charge1 = new Charge(q, x - r / 2 - 25, y);
+        this.charge2 = new Charge(-q, x + r / 2 + 25, this.y);
     }
 
     swapCharges() {

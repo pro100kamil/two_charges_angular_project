@@ -20,13 +20,17 @@ export class CalculatorService {
         return F / q;
     }
 
+    getElectricFieldStrengthAtPointOneCharge(q1: number, x1: number, y1: number,
+                                             x: number, y: number) {
+        let r1 = this.calcDistance(x, y, x1, y1);
+        return this.k * q1 / r1 ** 2;
+    }
+
     getElectricFieldStrengthAtPoint(q1: number, x1: number, y1: number,
                                     q2: number, x2: number, y2: number,
-                                    x: number, y:number) {
+                                    x: number, y: number) {
         let r1 = this.calcDistance(x, y, x1, y1);
         let r2 = this.calcDistance(x, y, x2, y2);
-        console.log("r1", this.k * q1 / r1 ** 2);
-        console.log("r2", this.k * q2 / r2 ** 2);
         return this.k * q1 / r1 ** 2 + this.k * q2 / r2 ** 2;
     }
 
@@ -37,10 +41,9 @@ export class CalculatorService {
 
     getPotentialAtPoint(q1: number, x1: number, y1: number,
                         q2: number, x2: number, y2: number,
-                        x: number, y:number) {
+                        x: number, y: number) {
         let r1 = this.calcDistance(x, y, x1, y1);
         let r2 = this.calcDistance(x, y, x2, y2);
-
         return this.k * q1 / r1 + this.k * q2 / r2;
     }
 }

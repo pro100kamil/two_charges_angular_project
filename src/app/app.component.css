@@ -1,7 +1,5 @@
 #top-part {
     background-color: pink;
-    background-repeat: no-repeat;
-    background-size: contain;
 }
 
 #top-part:hover {
