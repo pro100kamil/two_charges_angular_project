@@ -90,6 +90,8 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
 
             if (!this.playAudio) return;
 
+            if (audio.ended || audio.currentTime == 0) audio.play();
+
             // volume and durations depends on electricFieldStrength
             if (Math.abs(this.electricFieldStrength) > 20) {
                 // audio.pause();
