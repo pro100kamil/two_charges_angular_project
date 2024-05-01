@@ -3,11 +3,10 @@
         <div id="div_form">
             <form action="">
                 <p>
-<!--                    TODO поменять нейминг -->
-                    <label for="hareSpeedInput">Расстояние между зарядами диполя:</label>
-                    <input type="number" name="hareSpeedInput" id="hareSpeedInput"
+                    <label for="chargeDistance">Расстояние между зарядами диполя:</label>
+                    <input type="number" name="chargeDistance" id="chargeDistance"
                            required
-                           step="5"
+                           step="1"
                            min="1"
                            max="300"
                            [(ngModel)]="chargeDistance">
@@ -15,10 +14,10 @@
                 </p>
 
                 <p>
-                    <label for="wolfSpeedInput">Модуль заряда:</label>
-                    <input type="number" name="wolfSpeedInput" id="wolfSpeedInput"
+                    <label for="chargeModule">Модуль заряда:</label>
+                    <input type="number" name="chargeModule" id="chargeModule"
                            required
-                           step="5"
+                           step="1"
                            min="1"
                            max="200"
                            [(ngModel)]="chargeModule">
@@ -27,6 +26,20 @@
 
                 <input type="button" value="поменять местами"
                        (click)="onSwapButtonClick($event)">
+
+                <br>
+                <label>
+                    <input type="radio" name="mode" (change)="mode = '+-'" checked>
+                    Диполь
+                </label>
+                <label>
+                    <input type="radio" name="mode" (change)="mode = '--'">
+                    Отрицательные заряды
+                </label>
+                <label>
+                    <input type="radio" name="mode"  (change)="mode = '++'">
+                    Положительные заряды
+                </label>
 
                 <br>
                 <label>
@@ -41,6 +54,11 @@
                     Эквипотенциальные поверхности
                 </label>
                 <br>
+                <label>
+                    <input type="checkbox" name="sound"
+                           [(ngModel)]="playAudio">
+                    Звук напряжённости
+                </label>
             </form>
         </div>
         <div>
@@ -62,3 +80,7 @@
         <p>Потенциал в текущей точке: {{ potential | number:".0-2" }} В</p>
     </div>
 </div>
+<!--<audio autoplay loop>-->
+<audio>
+    <source src="assets/sounds/sound.wav">
+</audio>

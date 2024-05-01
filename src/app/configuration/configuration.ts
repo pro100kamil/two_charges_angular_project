@@ -4,7 +4,7 @@ import {Injectable} from "@angular/core";
     providedIn: 'root'
 })
 export class Configuration {
-    static useImages = false;  // используются ли картинки для зарядов или просто круги
+    static useImages = true;  // используются ли картинки для зарядов или просто круги
 
 
     static firstPositive = true;    // идёт ли положительный заряд первым по порядку

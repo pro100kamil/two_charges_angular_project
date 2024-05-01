@@ -27,10 +27,10 @@ export class DrawerService {
         this.ctx = this.canvas.getContext("2d");
 
         this.positiveChargeImage = new Image();
-        this.positiveChargeImage.src = "assets/images/cool.png";
+        this.positiveChargeImage.src = "assets/images/sigma.png";
 
         this.negativeChargeImage = new Image();
-        this.negativeChargeImage.src = "assets/images/angry.png";
+        this.negativeChargeImage.src = "assets/images/fearful.png";
 
         this.positiveChargeImage.onload = this.negativeChargeImage.onload = () => {
             this.loaded++;
@@ -202,44 +202,6 @@ export class DrawerService {
         this.ctx.closePath();
     }
 
-    drawEquipotentialSurfaces(dipole: Dipole) {
-        //TODO
-        let dx = 20;
-
-        for (let r = 50; r < 200; r += 50) {
-            this.ctx.beginPath();
-
-            this.ctx.arc(Configuration.centerX + dipole.charge1.x - dx,
-                Configuration.centerY - dipole.charge1.y,
-                r, 0, Math.PI * 2);
-            dx += 20;
-
-            this.ctx.strokeStyle = "red";
-            this.ctx.stroke();
-            this.ctx.closePath();
-            this.ctx.strokeStyle = "black";
-        }
-
-        dx = 20;
-
-        for (let r = 50; r < 200; r += 50) {
-            this.ctx.beginPath();
-
-            this.ctx.arc(Configuration.centerX + dipole.charge2.x + dx,
-                Configuration.centerY - dipole.charge2.y,
-                r, 0, Math.PI * 2);
-            dx += 20;
-
-            this.ctx.strokeStyle = "red";
-            this.ctx.stroke();
-            this.ctx.closePath();
-            this.ctx.strokeStyle = "black";
-        }
-    }
-
-    drawLinesForX() {
-
-    }
 
     newDrawLinesOfForce(dipole: Dipole) {
         let q1 = dipole.charge1.q;
@@ -254,7 +216,6 @@ export class DrawerService {
         let dx = 20;
         let q = Math.abs(q1) / 200;
         let dy = 100 - q * 80;
-        console.log(Math.abs(q1), dy);
         // let dy = 50;
         let count = 700;
         let ys = [];
@@ -296,10 +257,10 @@ export class DrawerService {
                     ex = ex / e * step;
                     ey = ey / e * step;
 
-                    if (y_ == 200) {
-                        ex = 1;
-                        ey = 0;
-                    }
+                    // if (y_ == 200) {
+                    //     ex = 1;
+                    //     ey = 0;
+                    // }
 
 
                     if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
@@ -313,8 +274,13 @@ export class DrawerService {
                     }
 
                     this.ctx.beginPath();
-                    if (x + ex > 400) this.drawLine(x, y, 400, y + ey);
-                    else this.drawLine(x, y, x + ex, y + ey);
+                    if (x + ex >= 400) {
+                        this.drawLine(x, y, 400, y + ey);
+                        // this.drawArrow(Configuration.centerX + 400, Configuration.centerY - y, this.defaultArrowDelta,
+                        //     Configuration.firstPositive ? "right" : "left");
+                    } else {
+                        this.drawLine(x, y, x + ex, y + ey);
+                    }
                     this.ctx.stroke();
                     this.ctx.fill();
                     this.ctx.closePath();
@@ -393,6 +359,31 @@ export class DrawerService {
 
     }
 
+    new2DrawLinesOfForce(dipole: Dipole) {
+        let lines = this.calculator.getLinesOfForce(dipole);
+        for (let line of lines) {
+            let n = line.length;
+            for (let i = 0; i + 1 < n; i++) {
+                let x1 = line[i][0];
+                let y1 = line[i][1];
+                let x2 = line[i + 1][0];
+                let y2 = line[i + 1][1];
+                this.ctx.beginPath();
+                this.drawLine(x1, y1, x2, y2);
+                // if (x2 >= 400) {
+                //     this.drawLine(x1, y1, 400, y2);
+                //     // this.drawArrow(Configuration.centerX + 400, Configuration.centerY - y, this.defaultArrowDelta,
+                //     //     Configuration.firstPositive ? "right" : "left");
+                // } else {
+                //     this.drawLine(x, y, x + ex, y + ey);
+                // }
+                this.ctx.stroke();
+                this.ctx.fill();
+                this.ctx.closePath();
+            }
+        }
+    }
+
     newDrawEquipotentialSurfaces(dipole: Dipole) {
         let q1 = dipole.charge1.q / Math.abs(dipole.charge1.q) / 1e6;  // потому что изначально задаётся в микрокулонах
         let x1 = dipole.charge1.x;
@@ -405,7 +396,7 @@ export class DrawerService {
         let potentialMap = new Map();
         //potentialMap[potential] = [(x1, y1), (x2, y2), ...]
 
-        let potentials = [30, 40, 50, 70, 90];
+        let potentials = dipole.charge1.q != dipole.charge2.q ? [40, 50, 70, 90] : [90, 110, 130, 150];
 
         for (let potential of potentials) {
             potentialMap.set(potential, []);
@@ -456,7 +447,7 @@ export class DrawerService {
         }
 
         if (!Configuration.useImages || this.loaded == 2) {
-            if (drawLines) this.newDrawLinesOfForce(dipole);
+            if (drawLines) this.new2DrawLinesOfForce(dipole);
             if (drawSurfaces) this.newDrawEquipotentialSurfaces(dipole);
 
             this.drawDipole(dipole);
