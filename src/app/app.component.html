@@ -51,7 +51,6 @@
                            [(ngModel)]="drawLines">
                     Силовые линии
                 </label>
-                <br>
                 <label>
                     <input type="checkbox" name="surfaces"
                            [(ngModel)]="drawSurfaces">
@@ -63,7 +62,6 @@
                            [(ngModel)]="playAudio">
                     Звук напряжённости
                 </label>
-                <br>
                 <label>
                     <input type="checkbox" name="pics"
                            [(ngModel)]="usePictures">
@@ -83,9 +81,7 @@
     </div>
 
     <div>
-        <p>Текущий x: {{ currentX }}</p>
-        <p>Текущий y: {{ currentY }}</p>
-
+        <p>Текущий x: {{ currentX }}. Текущий y: {{ currentY }}.</p>
         <p>Напряжённость в текущей точке: {{ electricFieldStrength | number:".0-2" }} Н/КЛ</p>
         <p>Потенциал в текущей точке: {{ potential | number:".0-2" }} В</p>
 

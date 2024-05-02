@@ -28,8 +28,8 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
 
     currentX = 0;
     currentY = 0;
-    electricFieldStrength = 1;
-    potential = 1;
+    electricFieldStrength = 0;
+    potential = 0;
     mode = "+-";
 
     dipole: any;
@@ -70,14 +70,16 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
 
         canvas.addEventListener("mousemove", (event: MouseEvent) => {
             //from computer coordinate system to math coordinate system
-            let cx = event.x - canvas.offsetLeft;
-            let cy = event.clientY - canvas.offsetTop;
+            let cx = event.pageX - canvas.offsetLeft;
+            let cy = event.pageY - canvas.offsetTop;
+            // обязательно именно page-coords, потому что они относительно всего документа
 
             let x = cx - Configuration.centerX;
             let y = Configuration.centerY - cy;
 
             this.currentX = x;
             this.currentY = y;
+            console.log(canvas.offsetTop);
 
             let q1 = this.dipole.charge1.q / 1e6;  // потому что изначально задаётся в микрокулонах
             let x1 = this.dipole.charge1.x;

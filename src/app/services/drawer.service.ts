@@ -165,222 +165,6 @@ export class DrawerService {
             Configuration.centerX + x3, Configuration.centerY - y3);
     }
 
-    oldestDrawLinesOfForce(dipole: Dipole) {
-        let dy = 50;
-        let y0 = dipole.charge1.y;
-        let x1 = dipole.charge1.x;
-        let x2 = dipole.charge2.x;
-        let r = dipole.charge1.radius;
-
-        let k = (x2 - x1);
-
-
-        this.ctx.beginPath();
-
-        this.drawLine(x1, y0, x2, y0);
-        this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y0, this.defaultArrowDelta,
-            Configuration.firstPositive ? "right" : "left");
-
-        //up
-        for (let y = y0 + r; y <= 400; y += dy) {
-            //middle
-            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
-            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
-                Configuration.firstPositive ? "right" : "left");
-
-            //left
-            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
-            // this.drawCurve(x1, y0, (x1 * 2 - k) / 2, (y + y) / 2, x1 - k, y);
-            // this.drawArrow(Configuration.centerX + (x1 * 2 - k) / 2, Configuration.centerY - (y0 + y) / 2, this.defaultArrowDelta, "right");
-            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
-                !Configuration.firstPositive ? "right" : "left");
-
-            //right
-            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
-            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
-                !Configuration.firstPositive ? "right" : "left");
-        }
-        //down
-
-        for (let y = y0 - r; y >= 0; y -= dy) {
-            //middle
-            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
-            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
-                Configuration.firstPositive ? "right" : "left");
-
-            //left
-            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
-            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
-                !Configuration.firstPositive ? "right" : "left");
-
-            //right
-            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
-            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
-                !Configuration.firstPositive ? "right" : "left");
-        }
-
-        this.ctx.strokeStyle = "black";
-        this.ctx.stroke();
-        this.ctx.closePath();
-    }
-
-
-    oldDrawLinesOfForce(dipole: Dipole) {
-        let q1 = dipole.charge1.q;
-        let q2 = dipole.charge2.q;
-        let y0 = dipole.charge1.y;
-        let x1 = dipole.charge1.x;
-        let x2 = dipole.charge2.x;
-
-        let k = (x2 - x1);
-
-        // this.ctx.beginPath();
-        let dx = 20;
-        let q = Math.abs(q1) / 200;
-        let dy = 100 - q * 80;
-        // let dy = 50;
-        let count = 700;
-        let ys = [];
-        for (let y = 50; y <= 350; y += dy) ys.push(y);
-        // ys = [50, 100, 150, 200, 250, 300, 350];
-        for (let y of ys) {
-            let y_ = y;
-            // 250 550
-            for (let x of [50]) {
-                for (let i = 0; i < count && x < 400; i++) {
-                    let r1x = x - x1;
-                    let r1y = y - y0;
-                    let r1 = this.calculator.calcDistance(x1, y0, x, y);
-
-                    let r2x = x - x2;
-                    let r2y = y - y0;
-                    let r2 = this.calculator.calcDistance(x2, y0, x, y);
-
-                    let e1 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
-                        dipole.charge1.q, x1, y0, x, y);
-                    let e1x = e1 * r1x / r1;
-                    let e1y = e1 * r1y / r1;
-                    let e1_ = (e1x ** 2 + e1y ** 2) ** 0.5;
-
-                    let e2 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
-                        dipole.charge2.q, x2, y0, x, y);
-                    let e2x = e2 * r2x / r2;
-                    let e2y = e2 * r2y / r2;
-                    let e2_ = (e2x ** 2 + e2y ** 2) ** 0.5;
-
-                    let ex = e1x + e2x;
-                    let ey = e1y + e2y;
-                    let e = this.calculator.getElectricFieldStrengthAtPoint(
-                        dipole.charge1.q, x1, y0,
-                        dipole.charge2.q, x2, y0, x, y);
-                    let step = 1;
-
-
-                    ex = ex / e * step;
-                    ey = ey / e * step;
-
-                    // if (y_ == 200) {
-                    //     ex = 1;
-                    //     ey = 0;
-                    // }
-
-
-                    if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
-                        ex = 1;
-                        e1 = 1;
-                    }
-
-                    if (ex < 0) {
-                        ex *= -1;
-                        ey *= -1;
-                    }
-
-                    this.ctx.beginPath();
-                    if (x + ex >= 400) {
-                        this.drawLine(x, y, 400, y + ey);
-                        // this.drawArrow(Configuration.centerX + 400, Configuration.centerY - y, this.defaultArrowDelta,
-                        //     Configuration.firstPositive ? "right" : "left");
-                    } else {
-                        this.drawLine(x, y, x + ex, y + ey);
-                    }
-                    this.ctx.stroke();
-                    this.ctx.fill();
-                    this.ctx.closePath();
-                    x = x + ex;
-                    y = y + ey;
-
-                }
-            }
-        }
-        for (let y of ys) {
-            let y_ = y;
-            // 250 550
-            for (let x of [750]) {
-                for (let i = 0; i < count && x >= 400; i++) {
-                    let r1x = x - x1;
-                    let r1y = y - y0;
-                    let r1 = this.calculator.calcDistance(x1, y0, x, y);
-
-                    let r2x = x - x2;
-                    let r2y = y - y0;
-                    let r2 = this.calculator.calcDistance(x2, y0, x, y);
-
-                    let e1 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
-                        dipole.charge1.q, x1, y0, x, y);
-                    let e1x = e1 * r1x / r1;
-                    let e1y = e1 * r1y / r1;
-                    let e1_ = (e1x ** 2 + e1y ** 2) ** 0.5;
-
-                    let e2 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
-                        dipole.charge2.q, x2, y0, x, y);
-                    let e2x = e2 * r2x / r2;
-                    let e2y = e2 * r2y / r2;
-                    let e2_ = (e2x ** 2 + e2y ** 2) ** 0.5;
-
-                    let ex = e1x + e2x;
-                    let ey = e1y + e2y;
-                    let e = this.calculator.getElectricFieldStrengthAtPoint(
-                        dipole.charge1.q, x1, y0,
-                        dipole.charge2.q, x2, y0, x, y);
-                    let step = 1;
-
-
-                    ex = ex / e * step;
-                    ey = ey / e * step;
-
-                    if (y_ == 200) {
-                        ex = 1;
-                        ey = 0;
-                    }
-
-
-                    if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
-                        ex = 1;
-                        e1 = 1;
-                    }
-
-                    if (ex > 0) {
-                        ex *= -1;
-                        ey *= -1;
-                    }
-
-                    this.ctx.beginPath();
-                    if (x + ex < 400) this.drawLine(x, y, 400, y + ey);
-                    else this.drawLine(x, y, x + ex, y + ey);
-                    this.ctx.stroke();
-                    this.ctx.fill();
-                    this.ctx.closePath();
-                    x = x + ex;
-                    y = y + ey;
-
-                }
-            }
-        }
-
-        console.log('end');
-
-    }
-
     drawLinesOfForce(dipole: Dipole) {
         let lines = this.calculator.getLinesOfForce(dipole);
         for (let line of lines) {
@@ -643,5 +427,222 @@ export class DrawerService {
 
             this.drawDipole(dipole);
         }
+    }
+
+    //deprecated!
+    oldestDrawLinesOfForce(dipole: Dipole) {
+        let dy = 50;
+        let y0 = dipole.charge1.y;
+        let x1 = dipole.charge1.x;
+        let x2 = dipole.charge2.x;
+        let r = dipole.charge1.radius;
+
+        let k = (x2 - x1);
+
+
+        this.ctx.beginPath();
+
+        this.drawLine(x1, y0, x2, y0);
+        this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y0, this.defaultArrowDelta,
+            Configuration.firstPositive ? "right" : "left");
+
+        //up
+        for (let y = y0 + r; y <= 400; y += dy) {
+            //middle
+            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
+            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
+                Configuration.firstPositive ? "right" : "left");
+
+            //left
+            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
+            // this.drawCurve(x1, y0, (x1 * 2 - k) / 2, (y + y) / 2, x1 - k, y);
+            // this.drawArrow(Configuration.centerX + (x1 * 2 - k) / 2, Configuration.centerY - (y0 + y) / 2, this.defaultArrowDelta, "right");
+            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+
+            //right
+            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
+            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+        }
+        //down
+
+        for (let y = y0 - r; y >= 0; y -= dy) {
+            //middle
+            this.drawCurve(x1, y0, (x1 + x2) / 2, y, x2, y0);
+            this.drawArrow(Configuration.centerX + (x1 + x2) / 2, Configuration.centerY - y, this.defaultArrowDelta,
+                Configuration.firstPositive ? "right" : "left");
+
+            //left
+            this.drawCurve(x1, y0, x1 - k, y, x1 - 2 * k, y0);
+            this.drawArrow(Configuration.centerX + (x1 - k), Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+
+            //right
+            this.drawCurve(x2, y0, x2 + k, y, x2 + k * 2, y0);
+            this.drawArrow(Configuration.centerX + x2 + k, Configuration.centerY - y, this.defaultArrowDelta,
+                !Configuration.firstPositive ? "right" : "left");
+        }
+
+        this.ctx.strokeStyle = "black";
+        this.ctx.stroke();
+        this.ctx.closePath();
+    }
+
+    //deprecated!
+    oldDrawLinesOfForce(dipole: Dipole) {
+        let q1 = dipole.charge1.q;
+        let q2 = dipole.charge2.q;
+        let y0 = dipole.charge1.y;
+        let x1 = dipole.charge1.x;
+        let x2 = dipole.charge2.x;
+
+        let k = (x2 - x1);
+
+        // this.ctx.beginPath();
+        let dx = 20;
+        let q = Math.abs(q1) / 200;
+        let dy = 100 - q * 80;
+        // let dy = 50;
+        let count = 700;
+        let ys = [];
+        for (let y = 50; y <= 350; y += dy) ys.push(y);
+        // ys = [50, 100, 150, 200, 250, 300, 350];
+        for (let y of ys) {
+            let y_ = y;
+            // 250 550
+            for (let x of [50]) {
+                for (let i = 0; i < count && x < 400; i++) {
+                    let r1x = x - x1;
+                    let r1y = y - y0;
+                    let r1 = this.calculator.calcDistance(x1, y0, x, y);
+
+                    let r2x = x - x2;
+                    let r2y = y - y0;
+                    let r2 = this.calculator.calcDistance(x2, y0, x, y);
+
+                    let e1 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
+                        dipole.charge1.q, x1, y0, x, y);
+                    let e1x = e1 * r1x / r1;
+                    let e1y = e1 * r1y / r1;
+                    let e1_ = (e1x ** 2 + e1y ** 2) ** 0.5;
+
+                    let e2 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
+                        dipole.charge2.q, x2, y0, x, y);
+                    let e2x = e2 * r2x / r2;
+                    let e2y = e2 * r2y / r2;
+                    let e2_ = (e2x ** 2 + e2y ** 2) ** 0.5;
+
+                    let ex = e1x + e2x;
+                    let ey = e1y + e2y;
+                    let e = this.calculator.getElectricFieldStrengthAtPoint(
+                        dipole.charge1.q, x1, y0,
+                        dipole.charge2.q, x2, y0, x, y);
+                    let step = 1;
+
+
+                    ex = ex / e * step;
+                    ey = ey / e * step;
+
+                    // if (y_ == 200) {
+                    //     ex = 1;
+                    //     ey = 0;
+                    // }
+
+
+                    if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
+                        ex = 1;
+                        e1 = 1;
+                    }
+
+                    if (ex < 0) {
+                        ex *= -1;
+                        ey *= -1;
+                    }
+
+                    this.ctx.beginPath();
+                    if (x + ex >= 400) {
+                        this.drawLine(x, y, 400, y + ey);
+                        // this.drawArrow(Configuration.centerX + 400, Configuration.centerY - y, this.defaultArrowDelta,
+                        //     Configuration.firstPositive ? "right" : "left");
+                    } else {
+                        this.drawLine(x, y, x + ex, y + ey);
+                    }
+                    this.ctx.stroke();
+                    this.ctx.fill();
+                    this.ctx.closePath();
+                    x = x + ex;
+                    y = y + ey;
+
+                }
+            }
+        }
+        for (let y of ys) {
+            let y_ = y;
+            // 250 550
+            for (let x of [750]) {
+                for (let i = 0; i < count && x >= 400; i++) {
+                    let r1x = x - x1;
+                    let r1y = y - y0;
+                    let r1 = this.calculator.calcDistance(x1, y0, x, y);
+
+                    let r2x = x - x2;
+                    let r2y = y - y0;
+                    let r2 = this.calculator.calcDistance(x2, y0, x, y);
+
+                    let e1 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
+                        dipole.charge1.q, x1, y0, x, y);
+                    let e1x = e1 * r1x / r1;
+                    let e1y = e1 * r1y / r1;
+                    let e1_ = (e1x ** 2 + e1y ** 2) ** 0.5;
+
+                    let e2 = this.calculator.getElectricFieldStrengthAtPointOneCharge(
+                        dipole.charge2.q, x2, y0, x, y);
+                    let e2x = e2 * r2x / r2;
+                    let e2y = e2 * r2y / r2;
+                    let e2_ = (e2x ** 2 + e2y ** 2) ** 0.5;
+
+                    let ex = e1x + e2x;
+                    let ey = e1y + e2y;
+                    let e = this.calculator.getElectricFieldStrengthAtPoint(
+                        dipole.charge1.q, x1, y0,
+                        dipole.charge2.q, x2, y0, x, y);
+                    let step = 1;
+
+
+                    ex = ex / e * step;
+                    ey = ey / e * step;
+
+                    if (y_ == 200) {
+                        ex = 1;
+                        ey = 0;
+                    }
+
+
+                    if (Math.abs(ex) > 100 || Math.abs(ey) > 100) {
+                        ex = 1;
+                        e1 = 1;
+                    }
+
+                    if (ex > 0) {
+                        ex *= -1;
+                        ey *= -1;
+                    }
+
+                    this.ctx.beginPath();
+                    if (x + ex < 400) this.drawLine(x, y, 400, y + ey);
+                    else this.drawLine(x, y, x + ex, y + ey);
+                    this.ctx.stroke();
+                    this.ctx.fill();
+                    this.ctx.closePath();
+                    x = x + ex;
+                    y = y + ey;
+
+                }
+            }
+        }
+
+        console.log('end');
+
     }
 }

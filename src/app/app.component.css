@@ -15,7 +15,6 @@ canvas {
 
 canvas:hover {
     border: 1px dashed blue;
-    /*border-radius: 20px;*/
 }
 
 
@@ -44,8 +43,4 @@ input[type="button"]:active {
     border: 2px dashed red;
     background-color: white;
     color: green;
-}
-
-input.ng-touched.ng-invalid {
-    border: solid red 2px;
 }
