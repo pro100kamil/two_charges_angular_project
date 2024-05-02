@@ -26,6 +26,8 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
     drawLines = true;
     drawSurfaces = true;
 
+    currentX = 0;
+    currentY = 0;
     electricFieldStrength = 1;
     potential = 1;
     mode = "+-";
@@ -73,6 +75,9 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
 
             let x = cx - Configuration.centerX;
             let y = Configuration.centerY - cy;
+
+            this.currentX = x;
+            this.currentY = y;
 
             let q1 = this.dipole.charge1.q / 1e6;  // потому что изначально задаётся в микрокулонах
             let x1 = this.dipole.charge1.x;
