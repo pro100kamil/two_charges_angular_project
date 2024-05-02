@@ -9,7 +9,8 @@
                            step="1"
                            min="1"
                            max="300"
-                           [(ngModel)]="chargeDistance">
+                           [(ngModel)]="chargeDistance"
+                    [disabled]="Configuration.animation">
                     пикселей
                 </p>
 
@@ -20,12 +21,15 @@
                            step="1"
                            min="1"
                            max="200"
-                           [(ngModel)]="chargeModule">
+                           [(ngModel)]="chargeModule"
+                           [disabled]="Configuration.animation">
                     мкКл
                 </p>
 
                 <input type="button" value="поменять местами"
                        (click)="onSwapButtonClick($event)">
+                <input type="button" value="анимация"
+                       (click)="onAnimationButtonClick($event)">
 
                 <br>
                 <label>

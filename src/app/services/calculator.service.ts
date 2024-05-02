@@ -58,7 +58,7 @@ export class CalculatorService {
         let q = Math.abs(q1) / 200;
         let dy = Math.round(100 - q * 80);
         // let dy = 50;
-        let count = 800;
+        let count = 500;
         let ys = [];
         for (let y = 50; y <= 350; y += dy) ys.push(y);
         // ys = [50, 100, 150, 200, 250, 300, 350];

@@ -110,6 +110,10 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
             }
         });
 
+        canvas.addEventListener("mouseleave", (event: MouseEvent) => {
+            audio.volume = 0;
+        });
+
         this.drawer.init();
     }
 
@@ -132,5 +136,9 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
 
     onSwapButtonClick($event: MouseEvent) {
         Configuration.firstPositive = !Configuration.firstPositive;
+    }
+
+    onAnimationButtonClick($event: MouseEvent) {
+        Configuration.animation = !Configuration.animation;
     }
 }

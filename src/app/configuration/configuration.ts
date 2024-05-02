@@ -18,4 +18,5 @@ export class Configuration {
     // (centerX;centerY) in computer coordinate system = (0;0) in math coordinate system
 
     static radius = 50;  // charge radius
+    static animation = false;
 }

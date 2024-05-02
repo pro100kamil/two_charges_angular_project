@@ -18,6 +18,30 @@ export class DrawerService {
     positiveChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
     negativeChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
 
+    leftL = 50;
+    leftC = 50;
+    leftR = 250;
+
+    middleL = 250;
+    middleC = 250;
+    middleR = 550;
+
+    middleL1 = 250;
+    middleC1 = 250;
+    middleR1 = 400;
+
+    middleL2 = 400;
+    middleC2 = 400;
+    middleR2 = 550;
+
+    rightL = 550;
+    rightC = 550;
+    rightR = 750;
+
+    animationLineLength = 20;
+
+    reDrawTimer: any;
+
     constructor(public calculator: CalculatorService) {
     }
 
@@ -35,6 +59,8 @@ export class DrawerService {
         this.positiveChargeImage.onload = this.negativeChargeImage.onload = () => {
             this.loaded++;
         };
+
+        this.reDrawTimer = null;
     }
 
     drawArrow(x: number, y: number, arrowDelta: number, direction: string): void {
@@ -374,6 +400,116 @@ export class DrawerService {
         }
     }
 
+    drawAnimLinesOfForce(dipole: Dipole) {
+        let lines = this.calculator.getLinesOfForce(dipole);
+
+        let q1 = dipole.charge1.q;
+        let q2 = dipole.charge2.q;
+
+        for (let line of lines) {
+
+            let n = line.length;
+            for (let i = 0; i + 1 < n; i++) {
+                let x1 = line[i][0];
+                let y1 = line[i][1];
+                let x2 = line[i + 1][0];
+                let y2 = line[i + 1][1];
+                this.ctx.beginPath();
+                if (q1 == q2) {
+                    if (this.leftC <= x1 && x1 <= this.leftC + this.animationLineLength ||
+                        this.middleC1 <= x1 && x1 <= this.middleC1 + this.animationLineLength ||
+                        this.middleC2 <= x1 && x1 <= this.middleC2 + this.animationLineLength ||
+                        this.rightC <= x1 && x1 <= this.rightC + this.animationLineLength) {
+
+                        this.ctx.strokeStyle = 'red';
+                        this.ctx.lineWidth = 5;
+                    }
+                } else {
+                    if (this.leftC <= x1 && x1 <= this.leftC + this.animationLineLength ||
+                        this.middleC <= x1 && x1 <= this.middleC + this.animationLineLength ||
+                        this.rightC <= x1 && x1 <= this.rightC + this.animationLineLength) {
+
+                        this.ctx.strokeStyle = 'red';
+                        this.ctx.lineWidth = 5;
+                    }
+                }
+                this.drawLine(x1, y1, x2, y2);
+
+                this.ctx.stroke();
+                this.ctx.fill();
+                this.ctx.closePath();
+                this.ctx.strokeStyle = 'black';
+                this.ctx.lineWidth = 1;
+            }
+        }
+        if (dipole.charge1.q < 0) {
+            if (this.leftC >= this.leftR) {
+                this.leftC = this.leftL;
+            } else {
+                this.leftC += this.animationLineLength / 2;
+            }
+        } else {
+            if (this.leftC <= this.leftL) {
+                this.leftC = this.leftR;
+            } else {
+                this.leftC -= this.animationLineLength / 2;
+            }
+        }
+        if (dipole.charge1.q < 0) {
+            if (q1 == q2) {
+                if (this.middleC1 <= this.middleL1) {
+                    this.middleC1 = this.middleR1;
+                } else {
+                    this.middleC1 -= this.animationLineLength / 2;
+                }
+                if (this.middleC2 >= this.middleR2) {
+                    this.middleC2 = this.middleL2;
+                } else {
+                    this.middleC2 += this.animationLineLength / 2;
+                }
+            } else {
+                if (this.middleC <= this.middleL) {
+                    this.middleC = this.middleR;
+                } else {
+                    this.middleC -= this.animationLineLength / 2;
+                }
+            }
+        } else {
+            if (q1 == q2) {
+                if (this.middleC1 >= this.middleR1) {
+                    this.middleC1 = this.middleL1;
+                } else {
+                    this.middleC1 += this.animationLineLength / 2;
+                }
+                if (this.middleC2 <= this.middleL2) {
+                    this.middleC2 = this.middleR2;
+                } else {
+                    this.middleC2 -= this.animationLineLength / 2;
+                }
+            } else {
+                if (this.middleC >= this.middleR) {
+                    this.middleC = this.middleL;
+                } else {
+                    this.middleC += this.animationLineLength / 2;
+                }
+            }
+        }
+
+        if (dipole.charge2.q < 0) {
+            if (this.rightC <= this.rightL) {
+                this.rightC = this.rightR;
+            } else {
+                this.rightC -= this.animationLineLength / 2;
+            }
+        } else {
+            if (this.rightC >= this.rightR) {
+                this.rightC = this.rightL;
+            } else {
+                this.rightC += this.animationLineLength / 2;
+            }
+        }
+    }
+
     newDrawEquipotentialSurfaces(dipole: Dipole) {
         let q1 = dipole.charge1.q / Math.abs(dipole.charge1.q) / 1e6;  // потому что изначально задаётся в микрокулонах
         let x1 = dipole.charge1.x;
@@ -428,6 +564,32 @@ export class DrawerService {
     }
 
     draw(dipole: Dipole, drawLines: boolean, drawSurfaces: boolean) {
+        if (this.reDrawTimer != null) {
+            clearInterval(this.reDrawTimer);
+        }
+        if (!Configuration.animation) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this.drawAxes(400, 25);
+
+            if (!Configuration.firstPositive) {
+                dipole.swapCharges();
+            }
+
+            if (!Configuration.useImages || this.loaded == 2) {
+                if (drawLines) this.drawLinesOfForce(dipole);
+                if (drawSurfaces) this.newDrawEquipotentialSurfaces(dipole);
+
+                this.drawDipole(dipole);
+            }
+        } else {
+            this.reDrawTimer = setInterval(() => {
+                this.reDraw(dipole, drawLines, drawSurfaces);
+            }, 200);
+        }
+    }
+
+    reDraw(dipole: Dipole, drawLines: boolean, drawSurfaces: boolean) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawAxes(400, 25);
@@ -437,8 +599,8 @@ export class DrawerService {
         }
 
         if (!Configuration.useImages || this.loaded == 2) {
-            if (drawLines) this.drawLinesOfForce(dipole);
             if (drawSurfaces) this.newDrawEquipotentialSurfaces(dipole);
+            if (drawLines) this.drawAnimLinesOfForce(dipole);
 
             this.drawDipole(dipole);
         }

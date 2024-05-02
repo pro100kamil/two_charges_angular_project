@@ -17,10 +17,14 @@ export class Dipole {
     }
 
     swapCharges() {
-        let x = this.charge1.x; let y= this.charge1.y;
-        this.charge1.x = this.charge2.x;
-        this.charge1.y = this.charge2.y;
-        this.charge2.x = x;
-        this.charge2.y = y;
+        // let x = this.charge1.x; let y= this.charge1.y;
+        // this.charge1.x = this.charge2.x;
+        // this.charge1.y = this.charge2.y;
+        // this.charge2.x = x;
+        // this.charge2.y = y;
+        if (this.charge1.q * this.charge2.q < 0) {
+            this.charge1.q *= -1;
+            this.charge2.q *= -1;
+        }
     }
 }
