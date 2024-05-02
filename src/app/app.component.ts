@@ -120,9 +120,9 @@ export class AppComponent implements AfterViewInit, AfterViewChecked {
     ngAfterViewChecked() {
         Configuration.useImages = this.usePictures;
 
-        //because pics contains empty space
-        if (Configuration.useImages) Configuration.radius = 50;
-        else Configuration.radius = 25;
+        //раньше было because pics contains empty space
+        // if (Configuration.useImages) Configuration.radius = 50;
+        // else Configuration.radius = 25;
 
         this.dipole = new Dipole(this.chargeModule, this.chargeDistance, 400, 200);
         if (this.mode == '--') {

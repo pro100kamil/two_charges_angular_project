@@ -83,11 +83,12 @@
     </div>
 
     <div>
+        <p>Напряжённость в текущей точке: {{ electricFieldStrength | number:".0-2" }} Н/КЛ</p>
+        <p>Потенциал в текущей точке: {{ potential | number:".0-2" }} В</p>
+
         <p>Сила Кулона одного заряда: {{ getForce() | number:".0-7"}} Н</p>
         <p>Напряжённость одного заряда: {{ getElectricFieldStrength() | number:".0-2" }} Н/КЛ</p>
-        <p>Напряжённость в текущей точке: {{ electricFieldStrength | number:".0-2" }} Н/КЛ</p>
-        <p>Потенциал: {{ getPotential() | number:".0-2" }} В</p>
-        <p>Потенциал в текущей точке: {{ potential | number:".0-2" }} В</p>
+        <p>Потенциал одного заряда: {{ getPotential() | number:".0-2" }} В</p>
     </div>
 </div>
 <!--<audio autoplay loop>-->

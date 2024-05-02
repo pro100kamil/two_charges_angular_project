@@ -19,23 +19,23 @@ export class DrawerService {
     negativeChargeImage: HTMLImageElement = <HTMLImageElement><unknown>null;
 
     leftL = 50;
-    leftC = 50;
+    leftC = -1;
     leftR = 250;
 
     middleL = 250;
-    middleC = 250;
+    middleC = -1;
     middleR = 550;
 
     middleL1 = 250;
-    middleC1 = 250;
+    middleC1 = -1;
     middleR1 = 400;
 
     middleL2 = 400;
-    middleC2 = 400;
+    middleC2 = -1;
     middleR2 = 550;
 
     rightL = 550;
-    rightC = 550;
+    rightC = -1;
     rightR = 750;
 
     animationLineLength = 20;
@@ -406,6 +406,35 @@ export class DrawerService {
         let q1 = dipole.charge1.q;
         let q2 = dipole.charge2.q;
 
+        if (this.leftC == -1) {
+            if (dipole.charge1.q < 0) {
+                this.leftC = this.leftL;
+            } else {
+                this.leftC = this.leftR;
+            }
+            if (dipole.charge1.q < 0) {
+                if (q1 == q2) {
+                    this.middleC1 = this.middleR1;
+                    this.middleC2 = this.middleL2;
+                } else {
+                    this.middleC = this.middleR;
+                }
+            } else {
+                if (q1 == q2) {
+                    this.middleC1 = this.middleL1;
+                    this.middleC2 = this.middleR2;
+                } else {
+                    this.middleC = this.middleL;
+                }
+            }
+
+            if (dipole.charge2.q < 0) {
+                this.rightC = this.rightR;
+            } else {
+                this.rightC = this.rightL;
+            }
+        }
+
         for (let line of lines) {
 
             let n = line.length;
@@ -442,6 +471,16 @@ export class DrawerService {
                 this.ctx.lineWidth = 1;
             }
         }
+        this.leftR = dipole.charge1.x;
+
+        this.middleL = dipole.charge1.x;
+        this.middleR = dipole.charge2.x;
+
+        this.middleL1 = dipole.charge1.x;
+        this.middleR2 = dipole.charge2.x;
+
+        this.rightL = dipole.charge2.x;
+
         if (dipole.charge1.q < 0) {
             if (this.leftC >= this.leftR) {
                 this.leftC = this.leftL;
